@@ -1,10 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const uuid = require('uuid');
-let users = require('../../Users')
+let users = require('../../Users');
+const jwt = require('jsonwebtoken');
+
+function verifyToken(req, res, next) {
+  const bearerHeader = req.headers['authorization']
+  if (typeof bearerHeader !== 'undefined') {
+    const bearerToken = bearerHeader.split(' ')[1]
+    req.token = bearerToken
+    next()
+  } else {
+    res.sendStatus(403); //forbidden without secret key
+  }
+}
 
 //get all users
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
   res.json(users);
 })
 
@@ -21,6 +33,7 @@ router.get('/:id', (req, res) => {
 
 //create a new user 
 router.post('/', (req, res) => {
+
   const newUser = {
     id: uuid.v4(),
     name: req.body.name,
@@ -30,9 +43,16 @@ router.post('/', (req, res) => {
   if (!newUser.name || !newUser.email) {
     return res.sendStatus(400);
   }
+  jwt.verify(req.token, 'secretkey', (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      users.push(newUser);
+      res.json(users);
+      authData
+    }
+  })
 
-  users.push(newUser);
-  res.json(users)
 })
 
 //update user
