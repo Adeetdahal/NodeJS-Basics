@@ -17,7 +17,17 @@ function verifyToken(req, res, next) {
 
 //get all users
 router.get('/', verifyToken, (req, res) => {
-  res.json(users);
+  jwt.verify(req.token, 'secretkey', (err, authData) => {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      // users.push(newUser);
+      // res.json(users);
+      // authData
+      res.json(users);
+      authData
+    }
+  })
 })
 
 //get users by id
@@ -43,16 +53,6 @@ router.post('/', (req, res) => {
   if (!newUser.name || !newUser.email) {
     return res.sendStatus(400);
   }
-  jwt.verify(req.token, 'secretkey', (err, authData) => {
-    if (err) {
-      res.sendStatus(403);
-    } else {
-      users.push(newUser);
-      res.json(users);
-      authData
-    }
-  })
-
 })
 
 //update user

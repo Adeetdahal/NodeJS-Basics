@@ -10,7 +10,7 @@ app.use('/api/users', require('./routes/api/users'))
 app.post('/api/login', (req, res) => {
     const MasterLogin = {
       id: 16,
-      username: 'masteradmin',
+      name: 'masteradmin',
       email: 'masteradmin@gmail.com'
     }
   
